@@ -22,7 +22,7 @@ The infrastructure is managed and documented using Terraform.
 
 ## 3. AWS Architecture
 
-![AWS Architecture Diagram](docs/architecture.png)
+![AWS Architecture Diagram](docs/architecture.jpg)
 
 ### Architecture Components
 
@@ -234,7 +234,7 @@ terraform-nginx-security/
 ├── docs/
 │   ├── nginx/
 │   │   └── api-gateway.conf.example
-│   └── architecture.png
+│   └── architecture.jpg
 │
 ├── lambda/
 │   ├── authorizer/
@@ -301,3 +301,32 @@ The implementation successfully demonstrates secure request forwarding, header v
 **Project:** NGINX Custom Headers & API Gateway Security Architecture
 
 **Category:** AWS Cloud Computing | DevOps | Infrastructure as Code
+
+## 16. Bonus – Secure Secret Management with AWS SSM Parameter Store
+
+This project includes an additional security enhancement using AWS Systems Manager Parameter Store.
+
+The internal authorization token is stored as an encrypted SecureString parameter instead of being hardcoded in the main NGINX configuration.
+
+### Implementation
+
+- Parameter Store securely stores the internal token.
+- EC2 retrieves the parameter using its attached IAM Role.
+- IAM permissions follow the least-privilege principle.
+- A root-owned script retrieves the token and writes it to a protected NGINX configuration file.
+- NGINX includes the protected file and injects the X-Internal-Token header into forwarded requests.
+- Terraform uses the write-only value_wo attribute and an ephemeral input variable.
+
+### Security
+
+- The actual token is excluded from GitHub.
+- The main NGINX configuration does not contain a hardcoded token.
+- The generated configuration directory uses permissions 700.
+- The generated configuration file uses permissions 600.
+- Automatic token rotation is not implemented.
+
+### Validation
+
+The SSM integration was successfully tested. NGINX configuration validation and reload succeeded, and the API request returned HTTP 200.
+
+For more implementation details, see [Bonus SSM Documentation](docs/bonus-ssm.md).
